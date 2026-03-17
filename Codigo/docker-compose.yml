@@ -1,0 +1,113 @@
+version: '3.8'
+
+services:
+  # 1. THE DATABASE SERVER
+  postgres_db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: managementdmdev
+      POSTGRES_MULTIPLE_DATABASES: db_logsec,db_public,db_chatbot,db_core_projects,db_documents,db_analytics
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-multiple-databases.sh:/docker-entrypoint-initdb.d/init-multiple-databases.sh
+    ports:
+      - "5432:5432"
+
+  # 2. THE API GATEWAY
+  api_gateway:
+    image: nginx:latest
+    volumes:
+      - ./api_gateway/nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "8000:80"
+    depends_on:
+      - service_logsec
+      - service_core_projects # WE CAN ADD ANY DEVELOPED MICROSERVICES IN THIS LIST, THE COPY THE STRUCTURES BELOW THIS FOR THE ONES WE ADD
+
+  # 3. SERVICE: LOGSEC (Logins, Roles, Basic Security)
+  service_logsec:
+    build: ./service_logsec
+    command: python manage.py runserver 0.0.0.0:8001
+    volumes:
+      - ./service_logsec:/app
+    environment:
+      - DB_NAME=db_logsec
+      - DB_USER=admin
+      - DB_PASSWORD=managementdmdev
+      - DB_HOST=postgres_db
+    depends_on:
+      - postgres_db
+
+  # 4. SERVICE: CORE PROJECTS (Projects & Tasks)
+  service_core_projects:
+    build: ./service_core_projects
+    command: python manage.py runserver 0.0.0.0:8002
+    volumes:
+      - ./service_core_projects:/app
+    environment:
+      - DB_NAME=db_core_projects
+      - DB_USER=admin
+      - DB_PASSWORD=managementdmdev
+      - DB_HOST=postgres_db
+    depends_on:
+      - postgres_db
+
+  # 5. SERVICE: PUBLIC (Portfolio Management, Public Information)
+  service_public:
+    build: ./service_public
+    command: python manage.py runserver 0.0.0.0:8003
+    volumes:
+      - ./service_public:/app
+    environment:
+      - DB_NAME=db_public
+      - DB_USER=admin
+      - DB_PASSWORD=managementdmdev
+      - DB_HOST=postgres_db
+    depends_on:
+      - postgres_db
+
+  # 6. SERVICE: DOCUMENTS (Business Quote PDF Reading and Virtualization)
+  service_documents:
+    build: ./service_documents
+    command: python manage.py runserver 0.0.0.0:8004
+    volumes:
+      - ./service_documents:/app
+    environment:
+      - DB_NAME=db_documents
+      - DB_USER=admin
+      - DB_PASSWORD=managementdmdev
+      - DB_HOST=postgres_db
+    depends_on:
+      - postgres_db
+
+  # 7. SERVICE: CHATBOT (IA Chatbot with Gemini and information depuration)
+  service_chatbot:
+    build: ./service_chatbot
+    command: python manage.py runserver 0.0.0.0:8005
+    volumes:
+      - ./service_chatbot:/app
+    environment:
+      - DB_NAME=db_chatbot
+      - DB_USER=admin
+      - DB_PASSWORD=managementdmdev
+      - DB_HOST=postgres_db
+    depends_on:
+      - postgres_db
+
+  # 8. SERVICE: ANALYTICS (Business analytics and graphs with data from other services)
+  service_analytics:
+    build: ./service_analytics
+    command: python manage.py runserver 0.0.0.0:8006
+    volumes:
+      - ./service_analytics:/app
+    environment:
+      - DB_NAME=db_analytics
+      - DB_USER=admin
+      - DB_PASSWORD=managementdmdev
+      - DB_HOST=postgres_db
+    depends_on:
+      - postgres_db
+
+volumes:
+  postgres_data:
