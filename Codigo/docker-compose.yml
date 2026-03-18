@@ -14,16 +14,17 @@ services:
     ports:
       - "5432:5432"
 
-  # 2. THE API GATEWAY
-  api_gateway:
-    image: nginx:latest
+  # 2. THE FRONTEND APPLICATION
+  frontend_app:
+    build: 
+      context: ./frontend_app
     volumes:
-      - ./api_gateway/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./frontend_app:/app
+      - /app/node_modules 
     ports:
-      - "8000:80"
-    depends_on:
-      - service_logsec
-      - service_core_projects # WE CAN ADD ANY DEVELOPED MICROSERVICES IN THIS LIST, THE COPY THE STRUCTURES BELOW THIS FOR THE ONES WE ADD
+      - "5173:5173"
+    environment:
+      - NODE_ENV=development
 
   # 3. SERVICE: LOGSEC (Logins, Roles, Basic Security)
   service_logsec:
@@ -108,6 +109,22 @@ services:
       - DB_HOST=postgres_db
     depends_on:
       - postgres_db
+
+  # 9. THE API GATEWAY
+  api_gateway:
+    image: nginx:latest
+    volumes:
+      - ./api_gateway/nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "8000:80"
+    depends_on:
+      - service_logsec
+      - service_core_projects
+      - service_public
+      - service_documents
+      - service_chatbot
+      - service_analytics
+      - frontend_app
 
 volumes:
   postgres_data:

@@ -1,22 +1,31 @@
-"""
-URL configuration for logsec_project project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/5.2/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
 from django.contrib import admin
 from django.urls import path
+from django.http import JsonResponse
+import json
+
+# ITS JUST AN EXAMPLE TO SHOW THE STRUCTURE AND THE WAY THIS WILL COMMUNICATE WITH THE FRONTEND, WE HAVE TO REPLACE IT WITH THE ACTUAL CODE
+def dummy_login_view(request):
+    if request.method == 'POST':
+        try:
+            body = json.loads(request.body)
+            username = body.get('username', 'Unknown')
+            
+            return JsonResponse({
+                "status": "success",
+                "message": f"Welcome {username}! This is a fake login token.",
+                "access": "FAKE_JWT_TOKEN_123456789",
+                "refresh": "FAKE_REFRESH_TOKEN_987654321"
+            })
+        except:
+            pass
+            
+    # If it's just a regular GET request
+    return JsonResponse({
+        "status": "info",
+        "message": "Hit this endpoint with a POST request to log in."
+    })
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('login/', dummy_login_view), 
 ]
