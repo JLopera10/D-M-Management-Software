@@ -83,6 +83,7 @@ services:
       - postgres_db
 
   # 7. SERVICE: CHATBOT (IA Chatbot with Gemini and information depuration)
+  # Gemini: cree service_chatbot/.env (véase .env.example); el volumen monta /app y Django carga la clave.
   service_chatbot:
     build: ./service_chatbot
     command: python manage.py runserver 0.0.0.0:8005

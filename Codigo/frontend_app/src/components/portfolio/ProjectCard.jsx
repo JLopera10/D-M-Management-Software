@@ -1,19 +1,26 @@
-// components/ProjectCard.jsx
-export default function ProjectCard({ project }) {
+export default function ProjectCard({ proyecto }) {
   return (
-    <div className="card">
+    <article className="card">
       <div className="card-image">
-        <img src={project.image} alt={project.title} />
-        <span className="tag">{project.tag}</span>
+        <img
+          src={proyecto.url_imagen}
+          alt={proyecto.titulo}
+          loading="lazy"
+        />
+        {proyecto.categoria ? (
+          <span className="tag">{proyecto.categoria}</span>
+        ) : null}
       </div>
 
       <div className="card-content">
-        <h3>{project.title}</h3>
-        <p className="location">📍 {project.location}</p>
-        <p className="description">{project.description}</p>
+        <h3>{proyecto.titulo}</h3>
+        <p className="location">📍 {proyecto.ubicacion}</p>
+        <p className="description">{proyecto.descripcion}</p>
 
-        <button className="btn">Ver detalle →</button>
+        <button type="button" className="btn">
+          Ver detalle →
+        </button>
       </div>
-    </div>
+    </article>
   );
 }

@@ -8,10 +8,29 @@
   padding: 15px 40px;
 }
 
-.nav-links a {
+.nav-links .nav-link {
   margin: 0 15px;
   color: white;
   text-decoration: none;
+}
+
+.nav-links .nav-link:hover {
+  text-decoration: underline;
+}
+
+.nav-links .nav-link--activo {
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.nav-links .nav-link--boton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font: inherit;
+  padding: 0;
+  margin: 0 15px;
 }
 
 .nav-right input {
@@ -24,6 +43,19 @@
   margin-left: 10px;
   padding: 8px 12px;
   border-radius: 10px;
+}
+
+.nav-enlace-filtro {
+  color: #fff;
+  text-decoration: none;
+  font-size: 14px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+.nav-enlace-filtro:hover {
+  background: rgba(255, 255, 255, 0.12);
 }
 
 /* HERO */
