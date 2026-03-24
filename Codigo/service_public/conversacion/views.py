@@ -20,10 +20,12 @@ logger = logging.getLogger(__name__)
 _MAX_HISTORIAL = 40
 
 # Google AI (v1beta) dejó de servir «gemini-1.5-flash» sin versión para varias claves; se prueba en orden.
-_DEFAULT_GEMINI_MODEL = "gemini-2.0-flash"
+_DEFAULT_GEMINI_MODEL = "gemini-2.5-flash"
 _MODELOS_GEMINI_RESPALDO: tuple[str, ...] = (
     "gemini-2.0-flash",
     "gemini-2.0-flash-001",
+    "gemini-2.5-flash",
+    "gemini-flash-latest",
     "gemini-1.5-flash-8b",
     "gemini-1.5-flash-latest",
     "gemini-1.5-flash-002",
@@ -242,7 +244,7 @@ def procesar_mensaje(request: HttpRequest) -> JsonResponse:
         if not texto:
             texto = (
                 "No se generó texto en la respuesta. Pruebe otra redacción o "
-                "verifique GEMINI_MODEL (p. ej. gemini-2.0-flash)."
+                "verifique GEMINI_MODEL (p. ej. gemini-2.5-flash o gemini-flash-latest)."
             )
 
         return JsonResponse(
@@ -259,7 +261,7 @@ def procesar_mensaje(request: HttpRequest) -> JsonResponse:
         detalle = str(exc)[:280] if settings.DEBUG else ""
         msg = (
             "No fue posible obtener respuesta del asistente. Compruebe la clave API, "
-            "GEMINI_MODEL (p. ej. gemini-2.0-flash) y la conexión a internet del servidor (puerto 8003)."
+            "GEMINI_MODEL (p. ej. gemini-2.5-flash), cuota de la API y la conexión a internet del servidor (puerto 8003)."
         )
         if detalle:
             msg = f"{msg} (detalle: {detalle})"

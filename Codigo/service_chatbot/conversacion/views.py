@@ -19,10 +19,12 @@ logger = logging.getLogger(__name__)
 
 _MAX_HISTORIAL = 40
 
-_DEFAULT_GEMINI_MODEL = "gemini-2.0-flash"
+_DEFAULT_GEMINI_MODEL = "gemini-2.5-flash"
 _MODELOS_GEMINI_RESPALDO: tuple[str, ...] = (
     "gemini-2.0-flash",
     "gemini-2.0-flash-001",
+    "gemini-2.5-flash",
+    "gemini-flash-latest",
     "gemini-1.5-flash-8b",
     "gemini-1.5-flash-latest",
     "gemini-1.5-flash-002",
@@ -149,9 +151,7 @@ def _llamar_modelo(
     copia_hist = [dict(h) for h in historial_previo]
     historial_ok = _normalizar_historial_gemini(copia_hist)
 
-    candidatos_modelo = [nombre_modelo.strip()]
-    if nombre_modelo.strip() != "gemini-1.5-flash":
-        candidatos_modelo.append("gemini-1.5-flash")
+    candidatos_modelo = _candidatos_modelo(nombre_modelo)
 
     ultimo_error: Exception | None = None
     for nm in candidatos_modelo:
@@ -255,7 +255,7 @@ def procesar_mensaje(request: HttpRequest) -> JsonResponse:
         if not texto:
             texto = (
                 "No se generó texto en la respuesta. Pruebe otra redacción o "
-                "verifique el modelo en GEMINI_MODEL (p. ej. gemini-2.0-flash)."
+                "verifique el modelo en GEMINI_MODEL (p. ej. gemini-2.5-flash o gemini-flash-latest)."
             )
 
         return JsonResponse(
@@ -272,7 +272,7 @@ def procesar_mensaje(request: HttpRequest) -> JsonResponse:
         detalle = str(exc)[:280] if settings.DEBUG else ""
         msg = (
             "No fue posible obtener respuesta del asistente. Compruebe la clave API, "
-            "GEMINI_MODEL (p. ej. gemini-2.0-flash) y que el servicio chatbot "
+            "GEMINI_MODEL (p. ej. gemini-2.5-flash), cuota de la API y que el servicio chatbot "
             "tenga acceso a internet."
         )
         if detalle:
