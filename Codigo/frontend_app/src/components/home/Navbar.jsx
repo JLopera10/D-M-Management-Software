@@ -21,6 +21,17 @@ export default function Navbar() {
         <NavLink to="/asistente" className={claseEnlaceActivo}>
           Asistente
         </NavLink>
+
+        {/* TEMPORAL, BOTONES DE ADMIN SOLO PARA TEST, LUEGO TENEMOS QUE RESTRINGIRLOS AL PERFIL DE ADMIN */}
+        <NavLink to="/admin/crear-proyecto" className={claseEnlaceActivo}>
+            Virtualizar
+        </NavLink>
+        <NavLink to="/admin/empleados" className={claseEnlaceActivo}>
+          Empleados
+        </NavLink>
+        <NavLink to="/admin/tareas" className={claseEnlaceActivo}>
+          Tareas
+        </NavLink>
       </div>
 
       <div className="nav-right">
