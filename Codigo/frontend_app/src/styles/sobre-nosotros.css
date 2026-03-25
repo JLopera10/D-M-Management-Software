@@ -1,0 +1,151 @@
+.sobre-nosotros {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 3rem;
+  color: #1a2b45;
+}
+
+.sobre-hero {
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid #0b1e3c;
+}
+
+.sobre-hero h1 {
+  margin: 0 0 0.5rem;
+  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  color: #0b1e3c;
+}
+
+.sobre-hero-subtitulo {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #555;
+  line-height: 1.5;
+}
+
+.sobre-seccion {
+  margin-bottom: 2.25rem;
+}
+
+.sobre-seccion h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1.35rem;
+  color: #0b1e3c;
+}
+
+.sobre-seccion p {
+  margin: 0 0 1rem;
+  line-height: 1.65;
+  color: #444;
+}
+
+.sobre-lista {
+  margin: 0;
+  padding-left: 1.25rem;
+  line-height: 1.8;
+  color: #444;
+}
+
+.sobre-contacto-grid {
+  display: grid;
+  gap: 1.25rem;
+  margin: 0;
+}
+
+@media (min-width: 600px) {
+  .sobre-contacto-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.sobre-contacto-grid dt {
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #0b1e3c;
+  margin-bottom: 0.25rem;
+}
+
+.sobre-contacto-grid dd {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.sobre-contacto-grid a {
+  color: #0b3d7a;
+  text-decoration: none;
+}
+
+.sobre-contacto-grid a:hover {
+  text-decoration: underline;
+}
+
+.sobre-nota {
+  display: block;
+  font-size: 0.85rem;
+  color: #777;
+  margin-top: 0.35rem;
+}
+
+.sobre-mapa-ayuda {
+  font-size: 0.95rem;
+  color: #555;
+}
+
+.sobre-mapa-ayuda code {
+  font-size: 0.85rem;
+  background: #eef2f7;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+}
+
+.sobre-mapa-contenedor {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%;
+  height: 0;
+  overflow: hidden;
+  border-radius: 12px;
+  border: 1px solid #cfd8e6;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  margin-top: 1rem;
+}
+
+.sobre-mapa-iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.sobre-mapa-pie {
+  margin: 0.75rem 0 0;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.sobre-datos-legales {
+  margin-bottom: 1rem;
+}
+
+.sobre-fuente {
+  font-size: 0.88rem;
+  color: #666;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.sobre-fuente a {
+  color: #0b3d7a;
+}
+
+.sobre-nota-inferior {
+  margin: 1rem 0 0;
+  font-size: 0.95rem;
+  color: #555;
+  line-height: 1.55;
+}
