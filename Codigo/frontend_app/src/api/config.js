@@ -13,6 +13,8 @@ export const endpoints = {
     tasks: `${prefijoApi}/core/tasks/`,
     businessInfo: `${prefijoApi}/public/info/`,
     chat: `${prefijoApi}/chatbot/request/`,
+    /** US-06: envío de solicitud de contacto tras confirmar resumen en el asistente */
+    consultaChatbotRegistro: `${prefijoApi}/public/consultas-chatbot/registro/`,
     documents: `${prefijoApi}/documents/virtualize/`,
     analytics: `${prefijoApi}/analytics/view/`,
 };

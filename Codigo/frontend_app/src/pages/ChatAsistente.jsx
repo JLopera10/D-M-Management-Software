@@ -6,14 +6,47 @@ function idMensaje() {
   return `msg-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 }
 
+/** Texto inicial del cuadro de confirmación (US-06) a partir del hilo. */
+function borradorResumenDesdeChat(mensajes) {
+  const lineas = mensajes
+    .filter((m) => !m.esError)
+    .map((m) => {
+      const etiqueta = m.rol === "usuario" ? "Cliente" : "Asistente";
+      return `${etiqueta}: ${m.contenido}`;
+    });
+  if (lineas.length === 0) {
+    return "";
+  }
+  return `Resumen de la conversación (revise y edite si lo desea):\n\n${lineas.join("\n\n")}`;
+}
+
+function historialParaRegistro(mensajes) {
+  return mensajes
+    .filter(
+      (m) =>
+        !m.esError && (m.rol === "usuario" || m.rol === "asistente")
+    )
+    .map(({ rol, contenido }) => ({ rol, contenido }));
+}
+
 /**
- * US-04: vista de chat a pantalla completa (estilo asistente tipo Gemini/Claude).
+ * US-04: vista de chat a pantalla completa.
+ * US-05: orientación de recopilación vía prompt en backend.
+ * US-06: confirmar y enviar solicitud de contacto.
  */
 export default function ChatAsistente() {
   const [mensajes, setMensajes] = useState([]);
   const [entrada, setEntrada] = useState("");
   const [enviando, setEnviando] = useState(false);
   const listaRef = useRef(null);
+
+  const [modalUs06Abierto, setModalUs06Abierto] = useState(false);
+  const [nombreCliente, setNombreCliente] = useState("");
+  const [emailCliente, setEmailCliente] = useState("");
+  const [telefonoCliente, setTelefonoCliente] = useState("");
+  const [resumenConfirmado, setResumenConfirmado] = useState("");
+  const [enviandoSolicitud, setEnviandoSolicitud] = useState(false);
+  const [feedbackUs06, setFeedbackUs06] = useState(null);
 
   useEffect(() => {
     if (!listaRef.current) return;
@@ -23,6 +56,61 @@ export default function ChatAsistente() {
   function nuevaConversacion() {
     setMensajes([]);
     setEntrada("");
+    setModalUs06Abierto(false);
+    setFeedbackUs06(null);
+  }
+
+  function abrirModalUs06() {
+    setResumenConfirmado(borradorResumenDesdeChat(mensajes));
+    setFeedbackUs06(null);
+    setModalUs06Abierto(true);
+  }
+
+  function cerrarModalUs06() {
+    setModalUs06Abierto(false);
+    setEnviandoSolicitud(false);
+  }
+
+  async function enviarSolicitudUs06(e) {
+    e.preventDefault();
+    setFeedbackUs06(null);
+    setEnviandoSolicitud(true);
+    try {
+      const respuesta = await fetch(endpoints.consultaChatbotRegistro, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nombre: nombreCliente.trim(),
+          email: emailCliente.trim(),
+          telefono: telefonoCliente.trim(),
+          resumen_confirmado: resumenConfirmado.trim(),
+          historial_chat: historialParaRegistro(mensajes),
+        }),
+      });
+      const datos = await respuesta.json().catch(() => ({}));
+      if (!respuesta.ok || !datos.exito) {
+        setFeedbackUs06({
+          tipo: "error",
+          texto:
+            datos.mensaje ||
+            `No se pudo registrar la solicitud (${respuesta.status}).`,
+        });
+        return;
+      }
+      setFeedbackUs06({ tipo: "ok", texto: datos.mensaje || "Registro exitoso." });
+      setNombreCliente("");
+      setEmailCliente("");
+      setTelefonoCliente("");
+      setResumenConfirmado("");
+    } catch {
+      setFeedbackUs06({
+        tipo: "error",
+        texto:
+          "Sin conexión con el servidor. Inicie Django (service_public) en el puerto 8003 e intente de nuevo.",
+      });
+    } finally {
+      setEnviandoSolicitud(false);
+    }
   }
 
   async function enviar(e) {
@@ -107,8 +195,27 @@ export default function ChatAsistente() {
           </span>
           Nuevo chat
         </button>
+        <button
+          type="button"
+          className="chat-pagina-rail-enviar"
+          onClick={abrirModalUs06}
+        >
+          Confirmar y enviar
+        </button>
+        <div className="chat-pagina-rail-us05">
+          <h2 className="chat-pagina-rail-us05-titulo">Datos que recopilamos</h2>
+          <p className="chat-pagina-rail-us05-desc">
+            US-05: el asistente le irá preguntando con calma para perfilar su proyecto.
+          </p>
+          <ul className="chat-pagina-rail-us05-lista">
+            <li>Metros cuadrados (aprox.)</li>
+            <li>Ubicación (ciudad o zona)</li>
+            <li>Presupuesto referencial (opcional)</li>
+            <li>Indicaciones generales (plazos, uso, restricciones)</li>
+          </ul>
+        </div>
         <p className="chat-pagina-rail-hint">
-          D&amp;M · asistente de proyectos metálicos
+          US-06: use «Confirmar y enviar» para que D&amp;M lo contacte.
         </p>
       </aside>
 
@@ -133,9 +240,13 @@ export default function ChatAsistente() {
                 ¿En qué podemos ayudarle?
               </h2>
               <p className="chat-pagina-bienvenida-texto">
-                Describa su necesidad (cubierta, cerramiento, estructura, etc.).
-                El asistente hará preguntas de aclaración; para una cotización
-                formal derivaremos a su equipo comercial.
+                Describa su necesidad (cubierta, cerramiento, estructura, etc.). El
+                asistente le hará preguntas orientadas para conocer superficie en m²,
+                ubicación, presupuesto aproximado si lo desea compartir, y otras
+                indicaciones del proyecto. Cuando esté listo, pulse{" "}
+                <strong>Confirmar y enviar</strong> en el panel izquierdo, revise el
+                resumen y deje sus datos para que el equipo comercial de D&amp;M lo
+                contacte.
               </p>
             </div>
           )}
@@ -220,6 +331,128 @@ export default function ChatAsistente() {
           </form>
         </footer>
       </div>
+
+      {modalUs06Abierto ? (
+        <div
+          className="chat-us06-capas"
+          role="presentation"
+          onClick={(ev) => {
+            if (ev.target === ev.currentTarget) cerrarModalUs06();
+          }}
+        >
+          <div
+            className="chat-us06-dialogo"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="chat-us06-titulo"
+          >
+            <div className="chat-us06-cabecera">
+              <h2 id="chat-us06-titulo" className="chat-us06-titulo">
+                Confirmar y enviar
+              </h2>
+              <button
+                type="button"
+                className="chat-us06-cerrar"
+                onClick={cerrarModalUs06}
+                aria-label="Cerrar"
+              >
+                ×
+              </button>
+            </div>
+            <p className="chat-us06-intro">
+              Revise el resumen de su consulta y sus datos de contacto. La empresa usará
+              esta información para comunicarse con usted.
+            </p>
+            <form className="chat-us06-form" onSubmit={enviarSolicitudUs06}>
+              <label className="chat-us06-etiqueta" htmlFor="us06-nombre">
+                Nombre completo <span className="chat-us06-req">*</span>
+              </label>
+              <input
+                id="us06-nombre"
+                className="chat-us06-input"
+                type="text"
+                autoComplete="name"
+                value={nombreCliente}
+                onChange={(e) => setNombreCliente(e.target.value)}
+                disabled={enviandoSolicitud}
+                required
+                minLength={2}
+                maxLength={200}
+              />
+              <label className="chat-us06-etiqueta" htmlFor="us06-email">
+                Correo electrónico <span className="chat-us06-req">*</span>
+              </label>
+              <input
+                id="us06-email"
+                className="chat-us06-input"
+                type="email"
+                autoComplete="email"
+                value={emailCliente}
+                onChange={(e) => setEmailCliente(e.target.value)}
+                disabled={enviandoSolicitud}
+                required
+              />
+              <label className="chat-us06-etiqueta" htmlFor="us06-tel">
+                Teléfono (opcional)
+              </label>
+              <input
+                id="us06-tel"
+                className="chat-us06-input"
+                type="tel"
+                autoComplete="tel"
+                value={telefonoCliente}
+                onChange={(e) => setTelefonoCliente(e.target.value)}
+                disabled={enviandoSolicitud}
+                maxLength={40}
+              />
+              <label className="chat-us06-etiqueta" htmlFor="us06-resumen">
+                Resumen confirmado <span className="chat-us06-req">*</span>
+              </label>
+              <textarea
+                id="us06-resumen"
+                className="chat-us06-textarea"
+                rows={8}
+                value={resumenConfirmado}
+                onChange={(e) => setResumenConfirmado(e.target.value)}
+                disabled={enviandoSolicitud}
+                required
+                minLength={20}
+                maxLength={12000}
+                placeholder="Edite el texto generado a partir del chat o escriba su propio resumen."
+              />
+              {feedbackUs06 ? (
+                <p
+                  className={
+                    feedbackUs06.tipo === "ok"
+                      ? "chat-us06-feedback chat-us06-feedback--ok"
+                      : "chat-us06-feedback chat-us06-feedback--error"
+                  }
+                  role="status"
+                >
+                  {feedbackUs06.texto}
+                </p>
+              ) : null}
+              <div className="chat-us06-acciones">
+                <button
+                  type="button"
+                  className="chat-us06-btn-secundario"
+                  onClick={cerrarModalUs06}
+                  disabled={enviandoSolicitud}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="chat-us06-btn-primario"
+                  disabled={enviandoSolicitud}
+                >
+                  {enviandoSolicitud ? "Enviando…" : "Enviar solicitud"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
