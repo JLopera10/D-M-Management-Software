@@ -1,5 +1,5 @@
 """
-US-04: expone el asistente en este servicio (p. ej. puerto 8005).
+US-04: Expone el asistente en este servicio (puerto 8005).
 La implementación vive en el paquete dm_asistente_core.
 """
 
