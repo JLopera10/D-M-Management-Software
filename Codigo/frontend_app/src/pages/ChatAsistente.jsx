@@ -116,7 +116,8 @@ export default function ChatAsistente() {
         <header className="chat-pagina-cabecera">
           <h1 className="chat-pagina-titulo">Asistente</h1>
           <p className="chat-pagina-modelo">
-            Orientación sobre obras y estructuras · sin cotización automática
+            Solo temas de D&amp;M Industrias Metálicas, obras y cotizaciones de construcción
+            estructural/metálica · sin precios cerrados en línea
           </p>
         </header>
 
