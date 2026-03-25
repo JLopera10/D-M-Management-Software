@@ -2,7 +2,7 @@ import json
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
-from .models import Proyecto, ItemCotizacion, FinanzasProyecto, Empleado, Tarea
+from .models import Proyecto, ItemCotizacion, FinanzasProyecto, Empleado, Tarea, ImagenProyecto
 
 @csrf_exempt
 @require_http_methods(["GET", "POST"])
@@ -157,13 +157,19 @@ def toggle_tarea(request, tarea_id):
     except Tarea.DoesNotExist:
         return JsonResponse({"exito": False, "mensaje": "Tarea no encontrada"}, status=404)
     
-@require_http_methods(["GET"])
+@csrf_exempt
+@require_http_methods(["GET", "PATCH"])
 def detalle_proyecto(request, proyecto_id):
     try:
         proyecto = Proyecto.objects.get(id=proyecto_id)
+    except Proyecto.DoesNotExist:
+        return JsonResponse({"exito": False, "mensaje": "Proyecto no encontrado"}, status=404)
+
+    if request.method == "GET":
         finanzas = proyecto.finanzas
         items = proyecto.items.all()
         tareas = proyecto.tareas.all()
+        imagenes = proyecto.imagenes.all()
 
         data = {
             "id": proyecto.id,
@@ -171,6 +177,9 @@ def detalle_proyecto(request, proyecto_id):
             "categoria": proyecto.categoria,
             "medidas": proyecto.medidas,
             "fecha": proyecto.fecha_cotizacion,
+            "ubicacion": proyecto.ubicacion or "",
+            "descripcion": proyecto.descripcion or "",
+            "imagenes": [{"id": img.id, "url": img.url} for img in imagenes],
             "finanzas": {
                 "subtotal": finanzas.subtotal,
                 "utilidad_factor": finanzas.utilidad_factor,
@@ -182,5 +191,20 @@ def detalle_proyecto(request, proyecto_id):
             "tareas": list(tareas.values('id', 'nombre_tarea', 'estado'))
         }
         return JsonResponse({"exito": True, "proyecto": data})
-    except Proyecto.DoesNotExist:
-        return JsonResponse({"exito": False, "mensaje": "Proyecto no encontrado"}, status=404)
+
+    elif request.method == "PATCH":
+        try:
+            data = json.loads(request.body)
+            
+            if 'ubicacion' in data:
+                proyecto.ubicacion = data['ubicacion']
+            if 'descripcion' in data:
+                proyecto.descripcion = data['descripcion']
+            proyecto.save()
+
+            if 'nueva_imagen' in data and data['nueva_imagen'].strip():
+                ImagenProyecto.objects.create(proyecto=proyecto, url=data['nueva_imagen'].strip())
+
+            return JsonResponse({"exito": True, "mensaje": "Proyecto actualizado correctamente"})
+        except Exception as e:
+            return JsonResponse({"exito": False, "mensaje": str(e)}, status=400)

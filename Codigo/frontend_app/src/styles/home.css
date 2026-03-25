@@ -1,4 +1,38 @@
 /* NAVBAR */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 20px;
+}
+
+.logo:visited {
+  color: white;
+}
+
+.logo:hover {
+  color: white;
+}
+
+.logo:active {
+  color: white;
+}
+
+.logo-img {
+  width: 55px;
+  height: 55px;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+.logo:hover .logo-img {
+  transform: scale(1.1);
+  transition: transform 0.2s ease;
+}
+
 .navbar {
   display: flex;
   justify-content: space-between;
@@ -61,8 +95,8 @@
 /* HERO */
 .hero {
   display: flex;
-  padding: 50px;
-  gap: 40px;
+  padding: 80px 60px;
+  gap: 60px;
 }
 
 .hero-left {
@@ -70,21 +104,22 @@
 }
 
 .hero-left h1 {
-  font-size: 42px;
-  color: #0b1e3c;
+  font-size: clamp(36px, 5vw, 56px);
 }
 
 .hero-left p {
   color: #555;
-  margin: 20px 0;
-  line-height: 1.5;
+  margin: 25px 0;
+  line-height: 1.6;
+  font-size: 18px;
 }
 
 .search {
-  padding: 12px;
-  border-radius: 25px;
-  width: 80%;
+  padding: 16px;
+  border-radius: 30px;
+  width: 85%;
   border: 1px solid #ccc;
+  font-size: 16px;
 }
 
 /* IMAGE */
@@ -95,7 +130,8 @@
 
 .hero-right img {
   width: 100%;
-  border-radius: 12px;
+  border-radius: 16px;
+  transform: scale(1.05);
 }
 
 .image-label {
@@ -115,5 +151,9 @@
 
 .stats h2 {
   color: orange;
-  font-size: 30px;
+  font-size: 40px;
+}
+
+.stats p {
+  font-size: 16px;
 }
