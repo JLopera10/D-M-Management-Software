@@ -7,38 +7,158 @@ export default function DetalleProyecto() {
   const navigate = useNavigate();
   const [proyecto, setProyecto] = useState(null);
   const [cargando, setCargando] = useState(true);
+  
+  // --- ESTADOS PARA EDICIÓN ---
+  const [editando, setEditando] = useState(false);
+  const [formEditar, setFormEditar] = useState({ ubicacion: "", descripcion: "", nueva_imagen: "" });
+
+  const fetchDetalle = async () => {
+    try {
+      const res = await fetch(endpoints.projectDetail(id));
+      const data = await res.json();
+      if (data.exito) {
+        setProyecto(data.proyecto);
+        setFormEditar({ 
+          ubicacion: data.proyecto.ubicacion, 
+          descripcion: data.proyecto.descripcion, 
+          nueva_imagen: "" 
+        });
+      }
+    } catch (err) {
+      console.error("Error:", err);
+    } finally {
+      setCargando(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchDetalle = async () => {
-      try {
-        const res = await fetch(endpoints.projectDetail(id));
-        const data = await res.json();
-        if (data.exito) {
-          setProyecto(data.proyecto);
-        }
-      } catch (err) {
-        console.error("Error:", err);
-      } finally {
-        setCargando(false);
-      }
-    };
     fetchDetalle();
   }, [id]);
+
+  // --- FUNCIÓN PARA GUARDAR EDICIÓN ---
+  const guardarEdicion = async () => {
+    try {
+      const res = await fetch(endpoints.projectDetail(id), {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formEditar)
+      });
+      const data = await res.json();
+      if (data.exito) {
+        setEditando(false);
+        fetchDetalle();
+      } else {
+        alert("Error al guardar: " + data.mensaje);
+      }
+    } catch (err) {
+      alert("Error de conexión");
+    }
+  };
+
+  // --- FUNCIÓN PARA ENVIAR AL MICROSERVICIO PÚBLICO ---
+  const publicarEnPortafolio = async () => {
+    if (!proyecto.descripcion || !proyecto.ubicacion || proyecto.imagenes.length === 0) {
+      alert("Debes agregar una descripción, ubicación y al menos una imagen antes de poder publicarlo en la web.");
+      return;
+    }
+
+    try {
+      const payload = {
+        titulo: proyecto.nombre,
+        descripcion: proyecto.descripcion,
+        ubicacion: proyecto.ubicacion,
+        categoria: proyecto.categoria,
+        url_imagen: proyecto.imagenes[0].url
+      };
+
+      const res = await fetch(endpoints.publishProject, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      
+      const data = await res.json();
+      if (data.exito) {
+        alert("¡Éxito! " + data.mensaje);
+      } else {
+        alert("Error al publicar: " + data.mensaje);
+      }
+    } catch (err) {
+      alert("Error de red intentando contactar al servicio público.");
+    }
+  };
 
   if (cargando) return <div style={{ padding: "40px" }}>Cargando información del proyecto...</div>;
   if (!proyecto) return <div style={{ padding: "40px", color: "red" }}>Proyecto no encontrado.</div>;
 
   return (
-    <div style={{ padding: "40px", maxWidth: "1000px", margin: "0 auto", fontFamily: "sans-serif" }}>
+    <div style={{ padding: "40px", maxWidth: "1200px", margin: "0 auto", fontFamily: "sans-serif" }}>
       <button onClick={() => navigate(-1)} style={{ marginBottom: "20px", padding: "8px 16px", cursor: "pointer" }}>
         ← Volver
       </button>
 
-      {/* HEADER */}
-      <div style={{ background: "#2c3e50", color: "white", padding: "20px", borderRadius: "8px", marginBottom: "30px" }}>
-        <h1 style={{ margin: "0 0 10px 0" }}>{proyecto.nombre}</h1>
-        <p style={{ margin: 0, opacity: 0.8 }}><strong>Categoría:</strong> {proyecto.categoria} | <strong>Fecha:</strong> {proyecto.fecha}</p>
-        <p style={{ margin: "5px 0 0 0", opacity: 0.8 }}><strong>Medidas:</strong> {proyecto.medidas}</p>
+      {/* HEADER Y EDICIÓN DE MARKETING */}
+      <div style={{ background: "#2c3e50", color: "white", padding: "20px", borderRadius: "8px", marginBottom: "30px", display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+        <div style={{ flex: 1 }}>
+          <h1 style={{ margin: "0 0 10px 0" }}>{proyecto.nombre}</h1>
+          <p style={{ margin: 0, opacity: 0.8 }}><strong>Categoría:</strong> {proyecto.categoria} | <strong>Fecha:</strong> {proyecto.fecha}</p>
+          <p style={{ margin: "5px 0 0 0", opacity: 0.8 }}><strong>Medidas:</strong> {proyecto.medidas}</p>
+          
+          <div style={{ marginTop: "20px", padding: "15px", background: "rgba(255,255,255,0.1)", borderRadius: "8px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <h3 style={{ margin: 0 }}>Datos Públicos (Portafolio)</h3>
+              <div style={{ display: "flex", gap: "10px" }}>
+                <button onClick={() => setEditando(!editando)} style={{ padding: "5px 10px", cursor: "pointer" }}>
+                  {editando ? "Cancelar" : "Editar Datos"}
+                </button>
+                {!editando && (
+                  <button 
+                    onClick={publicarEnPortafolio} 
+                    style={{ padding: "5px 15px", background: "#ffc107", color: "#000", border: "none", borderRadius: "4px", cursor: "pointer", fontWeight: "bold" }}
+                  >
+                    Publicar en Portafolio Web
+                  </button>
+                )}
+              </div>
+            </div>
+            
+            {editando ? (
+              <div style={{ marginTop: "15px", display: "flex", flexDirection: "column", gap: "10px" }}>
+                <input 
+                  placeholder="Ubicación (Ej: Envigado, Antioquia)" 
+                  value={formEditar.ubicacion} 
+                  onChange={e => setFormEditar({...formEditar, ubicacion: e.target.value})}
+                  style={{ padding: "8px" }}
+                />
+                <textarea 
+                  placeholder="Descripción pública del proyecto..." 
+                  value={formEditar.descripcion} 
+                  onChange={e => setFormEditar({...formEditar, descripcion: e.target.value})}
+                  style={{ padding: "8px", minHeight: "60px" }}
+                />
+                <input 
+                  placeholder="URL de nueva imagen (https://...)" 
+                  value={formEditar.nueva_imagen} 
+                  onChange={e => setFormEditar({...formEditar, nueva_imagen: e.target.value})}
+                  style={{ padding: "8px" }}
+                />
+                <button onClick={guardarEdicion} style={{ padding: "10px", background: "#28a745", color: "white", border: "none", cursor: "pointer", fontWeight: "bold" }}>
+                  Guardar Cambios
+                </button>
+              </div>
+            ) : (
+              <div style={{ marginTop: "15px" }}>
+                <p><strong>Ubicación:</strong> {proyecto.ubicacion || "No especificada"}</p>
+                <p><strong>Descripción:</strong> {proyecto.descripcion || "No especificada"}</p>
+                <div style={{ display: "flex", gap: "10px", marginTop: "10px", flexWrap: "wrap" }}>
+                  {proyecto.imagenes.map((img) => (
+                     <img key={img.id} src={img.url} alt="Proyecto" style={{ width: "150px", height: "100px", objectFit: "cover", borderRadius: "4px", border: "2px solid white" }} />
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "30px" }}>

@@ -1,21 +1,24 @@
-// En desarrollo, Vite enruta /api/public → Django (véase vite.config.js).
+// En desarrollo, Vite enruta /api/public → Django.
 // En producción o con Docker, define VITE_GATEWAY_URL (ej. http://localhost:8000/api).
 const prefijoApi = import.meta.env.VITE_GATEWAY_URL || "http://localhost:8000/api";
 
 export const endpoints = {
     login: `${prefijoApi}/auth/login/`,
+    
     projects: `${prefijoApi}/core/projects/`,
-    employees: `${prefijoApi}/core/employees/`,
+    projectDetail: (id) => `${prefijoApi}/core/projects/${id}/`,
     tasks: `${prefijoApi}/core/tasks/`,
     taskToggle: (id) => `${prefijoApi}/core/tasks/${id}/toggle/`,
-    projectDetail: (id) => `${prefijoApi}/core/projects/${id}/`,
-    projectCategories: `${prefijoApi}/public/categories/`,
-    tasks: `${prefijoApi}/core/tasks/`,
-    businessInfo: `${prefijoApi}/public/info/`,
-    chat: `${prefijoApi}/chatbot/request/`,
-    /** US-06: envío de solicitud de contacto tras confirmar resumen en el asistente */
-    consultaChatbotRegistro: `${prefijoApi}/public/consultas-chatbot/registro/`,
+    employees: `${prefijoApi}/core/empleados/`,
     documents: `${prefijoApi}/documents/virtualize/`,
+    chat: `${prefijoApi}/chatbot/request/`,
+    
+    publicProjects: `${prefijoApi}/public/projects/`,
+    projectCategories: `${prefijoApi}/public/categories/`,
+    publishProject: `${prefijoApi}/public/projects/publish/`,
+    businessInfo: `${prefijoApi}/public/info/`,
+    consultaChatbotRegistro: `${prefijoApi}/public/consultas-chatbot/registro/`,
+    
     analytics: `${prefijoApi}/analytics/view/`,
 };
 
@@ -24,9 +27,10 @@ export const endpoints = {
  * @returns {string}
  */
 export function construirUrlProyectos(categoriasSeleccionadas) {
-    const base = endpoints.projects.endsWith("/")
-        ? endpoints.projects
-        : `${endpoints.projects}/`;
+    const base = endpoints.publicProjects.endsWith("/")
+        ? endpoints.publicProjects
+        : `${endpoints.publicProjects}/`;
+        
     if (!categoriasSeleccionadas?.length) {
         return base;
     }

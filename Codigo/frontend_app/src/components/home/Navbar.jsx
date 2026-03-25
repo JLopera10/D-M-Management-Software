@@ -8,7 +8,8 @@ export default function Navbar() {
   return (
     <nav className="navbar" aria-label="Navegación principal">
       <Link to="/" className="logo">
-        D&amp;M Industrias
+        <img src="/logo.png" alt="Logo D&M" className="logo-img" />
+        <span>D&amp;M Industrias</span>
       </Link>
 
       <div className="nav-links">

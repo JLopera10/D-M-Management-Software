@@ -1,8 +1,43 @@
+import json
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 from django.http import HttpRequest, JsonResponse
 from django.views.decorators.http import require_GET
 
 from .models import Project
 
+
+@csrf_exempt
+@require_POST
+def publicar_proyecto(solicitud: HttpRequest) -> JsonResponse:
+    """Recibe datos desde el ERP (Core) y los publica o actualiza en el catálogo web."""
+    try:
+        data = json.loads(solicitud.body.decode("utf-8"))
+        
+        # update_or_create busca si ya existe un proyecto con ese título. 
+        # Si existe, lo actualiza. Si no, lo crea nuevo.
+        proyecto, created = Project.objects.update_or_create(
+            titulo=data.get('titulo', 'Sin título').strip(),
+            defaults={
+                'descripcion': data.get('descripcion', '').strip(),
+                'ubicacion': data.get('ubicacion', '').strip(),
+                'url_imagen': data.get('url_imagen', '').strip(),
+                'categoria': data.get('categoria', '').strip()
+            }
+        )
+        
+        accion = "creado" if created else "actualizado"
+        return JsonResponse({
+            "exito": True, 
+            "mensaje": f"Proyecto {accion} en el portafolio público exitosamente."
+        }, json_dumps_params={"ensure_ascii": False})
+        
+    except Exception as e:
+        return JsonResponse({
+            "exito": False, 
+            "mensaje": f"Error al publicar: {str(e)}"
+        }, status=400, json_dumps_params={"ensure_ascii": False})
+        
 
 def _serializar_proyecto(proyecto: Project) -> dict:
     return {
