@@ -85,7 +85,7 @@ export default function ChatAsistente() {
           id: idMensaje(),
           rol: "asistente",
           contenido:
-            "No hay conexión con el API del asistente. Inicie Django (service_public) en el puerto 8003 y recargue.",
+            "Error de red. No se pudo conectar con el servicio de Chatbot.",
           esError: true,
         },
       ]);

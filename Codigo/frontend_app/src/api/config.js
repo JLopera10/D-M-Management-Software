@@ -1,14 +1,14 @@
 // En desarrollo, Vite enruta /api/public → Django (véase vite.config.js).
 // En producción o con Docker, define VITE_GATEWAY_URL (ej. http://localhost:8000/api).
-const prefijoApi =
-  import.meta.env.VITE_GATEWAY_URL ||
-  (import.meta.env.DEV ? "/api" : "http://localhost:8000/api");
+const prefijoApi = import.meta.env.VITE_GATEWAY_URL || "http://localhost:8000/api";
 
-/** Lista de proyectos; US-02: añadir ?categoria=... varias veces para filtrar. */
 export const endpoints = {
     login: `${prefijoApi}/auth/login/`,
-    projects: `${prefijoApi}/public/projects/`,
-    /** US-02: categorías distintas para el selector */
+    projects: `${prefijoApi}/core/projects/`,
+    employees: `${prefijoApi}/core/employees/`,
+    tasks: `${prefijoApi}/core/tasks/`,
+    taskToggle: (id) => `${prefijoApi}/core/tasks/${id}/toggle/`,
+    projectDetail: (id) => `${prefijoApi}/core/projects/${id}/`,
     projectCategories: `${prefijoApi}/public/categories/`,
     tasks: `${prefijoApi}/core/tasks/`,
     businessInfo: `${prefijoApi}/public/info/`,
