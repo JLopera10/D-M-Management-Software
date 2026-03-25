@@ -99,8 +99,13 @@
   gap: 60px;
 }
 
-.hero-left {
+.hero-left,
+.hero-right {
   flex: 1;
+}
+
+.hero-left {
+  padding: 0 60px;
 }
 
 .hero-left h1 {
@@ -123,8 +128,8 @@
 }
 
 /* IMAGE */
+
 .hero-right {
-  flex: 1;
   position: relative;
 }
 
