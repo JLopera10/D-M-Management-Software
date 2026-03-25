@@ -1,28 +1,16 @@
 from django.contrib import admin
-from django.urls import path
-from django.http import JsonResponse
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from core.views import CotizacionViewSet
+from django.conf import settings
+from django.conf.urls.static import static
 
-# ITS JUST AN EXAMPLE TO SHOW THE STRUCTURE AND THE WAY THIS WILL COMMUNICATE WITH THE FRONTEND, WE HAVE TO REPLACE IT WITH THE ACTUAL CODE
-def dummy_projects_view(request):
-    return JsonResponse({
-        "status": "success",
-        "service": "CORE PROJECTS",
-        "message": "Hello! The Projects endpoint is alive and well.",
-        "data": [
-            {"id": 1, "title": "University Web Solution", "status": "In Progress"},
-            {"id": 2, "title": "Database Migration", "status": "Pending"}
-        ]
-    })
-
-def dummy_tasks_view(request):
-    return JsonResponse({
-        "status": "success",
-        "service": "CORE PROJECTS",
-        "message": "Tasks endpoint is responding!",
-    })
+router = DefaultRouter()
+router.register(r'cotizaciones', CotizacionViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('projects/', dummy_projects_view),
-    path('tasks/', dummy_tasks_view),
+    path('api/', include(router.urls)), # URL: /api/cotizaciones/
 ]
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

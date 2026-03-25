@@ -53,6 +53,8 @@ services:
       - DB_HOST=postgres_db
     depends_on:
       - postgres_db
+    ports:               # <--- AGREGUE ESTAS DOS LÍNEAS
+      - "8002:8002"
 
   # 5. SERVICE: PUBLIC (Portfolio Management, Public Information)
   service_public:
@@ -67,6 +69,7 @@ services:
       - DB_HOST=postgres_db
     depends_on:
       - postgres_db
+  
 
   # 6. SERVICE: DOCUMENTS (Business Quote PDF Reading and Virtualization)
   service_documents:
