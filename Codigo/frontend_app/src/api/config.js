@@ -17,6 +17,8 @@ export const endpoints = {
     projectCategories: `${prefijoApi}/public/categories/`,
     publishProject: `${prefijoApi}/public/projects/publish/`,
     businessInfo: `${prefijoApi}/public/info/`,
+    consultaChatbotRegistro: `${prefijoApi}/public/consultas-chatbot/registro/`,
+    
     analytics: `${prefijoApi}/analytics/view/`,
 };
 

@@ -16,19 +16,23 @@ if _env_chatbot.is_file():
     load_dotenv(_env_chatbot)
 load_dotenv(BASE_DIR / ".env", override=True)
 
-GEMINI_MODEL = (os.environ.get("GEMINI_MODEL") or "").strip()
-
-
 def main() -> int:
+    try:
+        from dm_asistente_core.constants import DEFAULT_GEMINI_MODEL, candidatos_modelo
+    except ImportError:
+        print("FAIL: instale el paquete compartido: pip install -e ../dm_asistente_core")
+        return 1
+
+    gemini_model_env = (os.environ.get("GEMINI_MODEL") or "").strip()
     key = (os.environ.get("GEMINI_API_KEY") or "").strip()
     if not key:
         print("FAIL: GEMINI_API_KEY vacía (service_public/.env o service_chatbot/.env).")
         return 1
     print("OK: GEMINI_API_KEY definida.")
-    if GEMINI_MODEL:
-        print(f"     GEMINI_MODEL en entorno: {GEMINI_MODEL!r}")
+    if gemini_model_env:
+        print(f"     GEMINI_MODEL en entorno: {gemini_model_env!r}")
     else:
-        print("     GEMINI_MODEL: (no definido; Django usará gemini-2.0-flash por defecto)")
+        print(f"     GEMINI_MODEL: (no definido; Django usará {DEFAULT_GEMINI_MODEL!r} por defecto)")
 
     import google.generativeai as genai
 
@@ -48,18 +52,7 @@ def main() -> int:
     except Exception as exc:  # noqa: BLE001
         print(f"list_models falló: {exc}")
 
-    candidatos = []
-    if GEMINI_MODEL:
-        candidatos.append(GEMINI_MODEL)
-    for x in (
-        "gemini-2.0-flash",
-        "gemini-2.0-flash-001",
-        "gemini-1.5-flash-8b",
-        "gemini-1.5-flash-latest",
-        "gemini-1.5-flash",
-    ):
-        if x not in candidatos:
-            candidatos.append(x)
+    candidatos = candidatos_modelo(gemini_model_env or DEFAULT_GEMINI_MODEL)
 
     print("\n--- generate_content('Responde solo: OK') ---")
     for name in candidatos:
