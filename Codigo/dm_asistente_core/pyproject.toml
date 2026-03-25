@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dm-asistente-core"
+version = "0.1.0"
+description = "Lógica compartida del asistente Gemini (US-04) para servicios Django D&M."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "Django>=5.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["dm_asistente_core*"]

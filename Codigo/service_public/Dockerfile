@@ -5,7 +5,10 @@ ENV PYTHONUNBUFFERED 1
 
 WORKDIR /app
 
-COPY requirements.txt /app/
-RUN pip install --no-cache-dir -r requirements.txt
+COPY dm_asistente_core /deps/dm_asistente_core
+RUN pip install --no-cache-dir -e /deps/dm_asistente_core
 
-COPY . /app/
+COPY service_public/requirements.txt /app/requirements.txt
+RUN pip install --no-cache-dir -r /app/requirements.txt
+
+COPY service_public /app

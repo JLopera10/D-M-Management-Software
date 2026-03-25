@@ -56,7 +56,9 @@ services:
 
   # 5. SERVICE: PUBLIC (Portfolio Management, Public Information)
   service_public:
-    build: ./service_public
+    build:
+      context: .
+      dockerfile: service_public/Dockerfile
     command: python manage.py runserver 0.0.0.0:8003
     volumes:
       - ./service_public:/app
@@ -85,7 +87,9 @@ services:
   # 7. SERVICE: CHATBOT (IA Chatbot with Gemini and information depuration)
   # Gemini: cree service_chatbot/.env (véase .env.example); el volumen monta /app y Django carga la clave.
   service_chatbot:
-    build: ./service_chatbot
+    build:
+      context: .
+      dockerfile: service_chatbot/Dockerfile
     command: python manage.py runserver 0.0.0.0:8005
     volumes:
       - ./service_chatbot:/app
