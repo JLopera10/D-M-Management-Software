@@ -13,6 +13,11 @@ services:
       - ./init-multiple-databases.sh:/docker-entrypoint-initdb.d/init-multiple-databases.sh
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   # 2. THE FRONTEND APPLICATION
   frontend_app:
@@ -42,17 +47,17 @@ services:
 
   # 4. SERVICE: CORE PROJECTS (Projects & Tasks)
   service_core_projects:
-    build: ./service_core_projects
+    build:
+      context: ./service_core_projects
     command: python manage.py runserver 0.0.0.0:8002
     volumes:
       - ./service_core_projects:/app
-    environment:
-      - DB_NAME=db_core_projects
-      - DB_USER=admin
-      - DB_PASSWORD=managementdmdev
-      - DB_HOST=postgres_db
+    ports:
+      - "8002:8002"
     depends_on:
-      - postgres_db
+      postgres_db:
+        condition: service_healthy
+
 
   # 5. SERVICE: PUBLIC (Portfolio Management, Public Information)
   service_public:

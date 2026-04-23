@@ -208,3 +208,18 @@ def detalle_proyecto(request, proyecto_id):
             return JsonResponse({"exito": True, "mensaje": "Proyecto actualizado correctamente"})
         except Exception as e:
             return JsonResponse({"exito": False, "mensaje": str(e)}, status=400)
+        
+from django.http import JsonResponse
+from .models import Proyecto  # Si el modelo se llama distinto, usa ese nombre
+
+def active_projects_count(request):
+    estados_activos = ["pendiente", "en_progreso", "en_espera"]
+    count = Proyecto.objects.filter(estado__in=estados_activos).count()
+    return JsonResponse({"active_projects": count})
+
+from django.http import JsonResponse
+from .models import Proyecto
+
+def active_projects_count(request):
+    count = Proyecto.objects.filter(estado="activo").count()
+    return JsonResponse({"active_projects": count})
