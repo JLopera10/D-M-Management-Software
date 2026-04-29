@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { endpoints } from "../api/config";
+import "../styles/paneles.css";
 
 export default function GestionTareas() {
   const [proyectos, setProyectos] = useState([]);
@@ -96,98 +97,144 @@ export default function GestionTareas() {
     }
   };
 
+  const tareasCompletadas = tareas.filter((t) => t.estado === "Completada").length;
+  const tareasPendientes = tareas.length - tareasCompletadas;
+
   return (
-    <div style={{ padding: "40px", maxWidth: "1000px", margin: "0 auto", fontFamily: "sans-serif" }}>
-      <h1>Gestión de Tareas y Cuadrillas</h1>
-      
-      <div style={{ background: "#eef2f5", padding: "20px", borderRadius: "8px", marginBottom: "30px" }}>
-        <h2>Asignar Nueva Tarea</h2>
-        <form onSubmit={asignarTarea} style={{ display: "grid", gap: "15px", gridTemplateColumns: "1fr 1fr" }}>
-          
-          <select required name="proyecto_id" value={formulario.proyecto_id} onChange={manejarCambio} style={{ padding: "8px" }}>
-            <option value="">-- Seleccionar Proyecto --</option>
-            {proyectos.map(p => <option key={p.id} value={p.id}>{p.nombre}</option>)}
-          </select>
+    <div className="tareas-page">
+      <header className="tareas-hero">
+        <div className="tareas-hero-inner">
+          <h1>Gestión de Tareas y Cuadrillas</h1>
+          <p className="tareas-subtitulo">
+            Asigna tareas, controla estados y revisa el avance de tus proyectos sin cambiar la lógica existente.
+          </p>
 
-          <input required name="nombre_tarea" placeholder="Ej: Soldadura de marcos" value={formulario.nombre_tarea} onChange={manejarCambio} style={{ padding: "8px" }} />
+          <div className="tareas-resumen">
+            <div className="resumen-card">
+              <span className="resumen-numero">{tareas.length}</span>
+              <span className="resumen-texto">Tareas totales</span>
+            </div>
+            <div className="resumen-card">
+              <span className="resumen-numero">{tareasPendientes}</span>
+              <span className="resumen-texto">Pendientes</span>
+            </div>
+            <div className="resumen-card">
+              <span className="resumen-numero">{tareasCompletadas}</span>
+              <span className="resumen-texto">Completadas</span>
+            </div>
+          </div>
+        </div>
+      </header>
 
-          <select required name="empleado_principal_id" value={formulario.empleado_principal_id} onChange={manejarCambio} style={{ padding: "8px" }}>
-            <option value="">-- Trabajador Principal --</option>
-            {empleados.map(e => <option key={e.id} value={e.id}>{e.nombre_completo} ({e.cargo})</option>)}
-          </select>
-
-          <select name="ayudante_id" value={formulario.ayudante_id} onChange={manejarCambio} style={{ padding: "8px" }}>
-            <option value="">-- Ayudante (Opcional) --</option>
-            {empleados.map(e => <option key={e.id} value={e.id}>{e.nombre_completo} ({e.cargo})</option>)}
-          </select>
-
-          <div>
-            <label style={{ display: "block", fontSize: "0.8em" }}>Fecha Inicio</label>
-            <input required type="date" name="fecha_inicio" value={formulario.fecha_inicio} onChange={manejarCambio} style={{ width: "100%", padding: "8px", boxSizing: "border-box" }} />
+      <main className="tareas-main">
+        <section className="tareas-card tareas-form-card">
+          <div className="section-head">
+            <h2>Asignar Nueva Tarea</h2>
+            <p>Completa la información para vincular la tarea a un proyecto y a una cuadrilla.</p>
           </div>
 
-          <div>
-            <label style={{ display: "block", fontSize: "0.8em" }}>Fecha Fin Estimada</label>
-            <input required type="date" name="fecha_fin" value={formulario.fecha_fin} onChange={manejarCambio} style={{ width: "100%", padding: "8px", boxSizing: "border-box" }} />
+          <form onSubmit={asignarTarea} className="tareas-form">
+            <div className="campo">
+              <label>Proyecto</label>
+              <select required name="proyecto_id" value={formulario.proyecto_id} onChange={manejarCambio}>
+                <option value="">-- Seleccionar Proyecto --</option>
+                {proyectos.map((p) => <option key={p.id} value={p.id}>{p.nombre}</option>)}
+              </select>
+            </div>
+
+            <div className="campo">
+              <label>Tarea</label>
+              <input required name="nombre_tarea" placeholder="Ej: Soldadura de marcos" value={formulario.nombre_tarea} onChange={manejarCambio} />
+            </div>
+
+            <div className="campo">
+              <label>Trabajador principal</label>
+              <select required name="empleado_principal_id" value={formulario.empleado_principal_id} onChange={manejarCambio}>
+                <option value="">-- Trabajador Principal --</option>
+                {empleados.map((e) => <option key={e.id} value={e.id}>{e.nombre_completo} ({e.cargo})</option>)}
+              </select>
+            </div>
+
+            <div className="campo">
+              <label>Ayudante</label>
+              <select name="ayudante_id" value={formulario.ayudante_id} onChange={manejarCambio}>
+                <option value="">-- Ayudante (Opcional) --</option>
+                {empleados.map((e) => <option key={e.id} value={e.id}>{e.nombre_completo} ({e.cargo})</option>)}
+              </select>
+            </div>
+
+            <div className="campo">
+              <label>Fecha inicio</label>
+              <input required type="date" name="fecha_inicio" value={formulario.fecha_inicio} onChange={manejarCambio} />
+            </div>
+
+            <div className="campo">
+              <label>Fecha fin estimada</label>
+              <input required type="date" name="fecha_fin" value={formulario.fecha_fin} onChange={manejarCambio} />
+            </div>
+
+            <button type="submit" disabled={cargando} className="btn btn-primary btn-full">
+              {cargando ? "Asignando..." : "Asignar Tarea"}
+            </button>
+          </form>
+        </section>
+
+        <section className="tareas-card tareas-lista-card">
+          <div className="section-head section-head-row">
+            <div>
+              <h2>Tareas Activas</h2>
+              <p>Estado y avance actual de las tareas registradas.</p>
+            </div>
           </div>
 
-          <button type="submit" disabled={cargando} style={{ gridColumn: "span 2", padding: "12px", background: "#28a745", color: "white", border: "none", borderRadius: "4px", cursor: "pointer", fontWeight: "bold" }}>
-            {cargando ? "Asignando..." : "Asignar Tarea"}
-          </button>
-        </form>
-      </div>
-
-      <h2>Tareas Activas</h2>
-      <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", background: "white", boxShadow: "0 1px 3px rgba(0,0,0,0.1)" }}>
-        <thead style={{ background: "#343a40", color: "white" }}>
-          <tr>
-            <th style={{ padding: "12px" }}>Proyecto</th>
-            <th>Tarea</th>
-            <th>Principal</th>
-            <th>Ayudante</th>
-            <th>Plazo</th>
-            <th>Estado</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {tareas.map(t => (
-            <tr key={t.id} style={{ borderBottom: "1px solid #ddd" }}>
-              <td style={{ padding: "12px", fontWeight: "bold" }}>{t.proyecto_nombre}</td>
-              <td>{t.nombre_tarea}</td>
-              <td>{t.empleado_principal}</td>
-              <td>{t.ayudante}</td>
-              <td style={{ fontSize: "0.9em" }}>{t.fecha_inicio} al {t.fecha_fin}</td>
-              <td>
-                <label style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: "8px" }}>
-                  <input 
-                    type="checkbox" 
-                    checked={t.estado === 'Completada'} 
-                    onChange={() => alternarEstadoTarea(t.id, t.estado)}
-                    style={{ width: "18px", height: "18px", cursor: "pointer" }}
-                  />
-                  <span style={{ 
-                    padding: "4px 8px", borderRadius: "12px", fontSize: "0.8em", 
-                    background: t.estado === 'Completada' ? '#d4edda' : '#fff3cd',
-                    color: t.estado === 'Completada' ? '#155724' : '#856404',
-                    textDecoration: t.estado === 'Completada' ? 'line-through' : 'none'
-                  }}>
-                    {t.estado}
-                  </span>
-                </label>
-              </td>
-              <td>
-                <button 
-                  onClick={() => navigate(`/admin/proyectos/${t.proyecto_id}`)} 
-                  style={{ padding: "6px 12px", background: "#17a2b8", color: "white", border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "0.8em" }}
-                >
-                  Ver Proyecto
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+          <div className="tabla-wrapper">
+            <table className="tareas-table">
+              <thead>
+                <tr>
+                  <th>Proyecto</th>
+                  <th>Tarea</th>
+                  <th>Principal</th>
+                  <th>Ayudante</th>
+                  <th>Plazo</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {tareas.map((t) => (
+                  <tr key={t.id}>
+                    <td className="cell-strong">{t.proyecto_nombre}</td>
+                    <td>{t.nombre_tarea}</td>
+                    <td>{t.empleado_principal}</td>
+                    <td>{t.ayudante || "-"}</td>
+                    <td className="cell-muted">{t.fecha_inicio} al {t.fecha_fin}</td>
+                    <td>
+                      <label className="estado-switch">
+                        <input
+                          type="checkbox"
+                          checked={t.estado === 'Completada'}
+                          onChange={() => alternarEstadoTarea(t.id, t.estado)}
+                        />
+                        <span className={t.estado === 'Completada' ? 'estado-badge estado-completada' : 'estado-badge estado-pendiente'}>
+                          {t.estado}
+                        </span>
+                      </label>
+                    </td>
+                    <td>
+                      <button
+                        onClick={() => navigate(`/admin/proyectos/${t.proyecto_id}`)}
+                        className="btn btn-secondary btn-sm"
+                      >
+                        Ver proyecto
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </main>
     </div>
   );
 }
