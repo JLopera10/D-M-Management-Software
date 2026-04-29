@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { endpoints } from "../api/config";
-import "../styles/empleados.css";
+import "../styles/paneles.css";
 
 export default function DirectorioEmpleados() {
   const [empleados, setEmpleados] = useState([]);

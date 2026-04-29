@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { endpoints } from "../api/config";
-import "../styles/virtualizacion.css";
+import "../styles/paneles.css";
 
 export default function CrearProyecto() {
   const [archivo, setArchivo] = useState(null);

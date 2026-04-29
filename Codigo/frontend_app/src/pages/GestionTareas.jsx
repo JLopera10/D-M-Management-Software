@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { endpoints } from "../api/config";
-import "../styles/tareas.css";
+import "../styles/paneles.css";
 
 export default function GestionTareas() {
   const [proyectos, setProyectos] = useState([]);
