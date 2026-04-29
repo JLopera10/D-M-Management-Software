@@ -25,7 +25,7 @@ export default function Navbar() {
 
         {/* TEMPORAL, BOTONES DE ADMIN SOLO PARA TEST, LUEGO TENEMOS QUE RESTRINGIRLOS AL PERFIL DE ADMIN */}
         <NavLink to="/admin/crear-proyecto" className={claseEnlaceActivo}>
-            Virtualizar
+          Virtualizar
         </NavLink>
         <NavLink to="/admin/empleados" className={claseEnlaceActivo}>
           Empleados

@@ -16,6 +16,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/nosotros" element={<SobreNosotros />} />
           <Route path="/asistente" element={<ChatAsistente />} />
+          <Route path="/virtualizar" element={<Navigate to="/admin/crear-proyecto" replace />} />
           <Route path="/admin/crear-proyecto" element={<CreacionProyectos />} />
           <Route path="/admin/empleados" element={<DirectorioEmpleados />} />
           <Route path="/admin/tareas" element={<GestionTareas />} />
